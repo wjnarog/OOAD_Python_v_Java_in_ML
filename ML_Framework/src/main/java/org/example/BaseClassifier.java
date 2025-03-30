@@ -35,7 +35,7 @@ public abstract class BaseClassifier {
         for (int i = 0; i < testData.numInstances(); i++) {
             eval.evaluateModelOnce(predictions[i], testData.instance(i));
         }
-        // System.out.println("Accuracy: " + eval.pctCorrect());
+        System.out.println("Accuracy: " + eval.pctCorrect());
     }
 
     /*
@@ -47,7 +47,6 @@ public abstract class BaseClassifier {
         Evaluation eval = new Evaluation(trainingData);
         eval.crossValidateModel(getModel(), trainingData, folds, new Random(42));
 //        System.out.println("Cross-Validation Accuracy: " + eval.pctCorrect() + "%");
-        System.out.println("Accuracy: " + eval.pctCorrect() + "%");
     }
 
     // Abstraction: Subclasses must provide the model

@@ -50,8 +50,6 @@ public class Main {
             decisionTree.evaluate(testData, predictions);
             decisionTree.crossValidate(10);
 
-
-
             // Create and train k-NN
             System.out.println("\nk-NN:");
             KNNClassifier knnClassifier = new KNNClassifier(trainingData);
