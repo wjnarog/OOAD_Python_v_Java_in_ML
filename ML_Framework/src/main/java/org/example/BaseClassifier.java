@@ -4,11 +4,6 @@ import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
 /*
  * - Encapsulation: Encapsulates common functionality like evaluation and cross-validation.
  * - Abstraction: Defines abstract methods (train, predict, getModel) to hide implementation details.
@@ -34,21 +29,20 @@ public abstract class BaseClassifier {
      * - Encapsulation: Evaluation logic is encapsulated in this method.
      */
     public EvaluationResult evaluate(Instances testData, double[] predictions,
-                                    long trainingTimeNanos, long predictionTimeNanos) throws Exception {
-        // Force GC and wait to reduce noise
+                                     long trainingTimeNanos, long predictionTimeNanos) throws Exception {
+        // Force garbage collection and wait
         System.gc();
-        Thread.sleep(100);
+        Thread.sleep(50);  // Let GC complete
 
-        // Measure memory BEFORE training
-        long memoryBefore = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
+        // Measure memory using Runtime (more reliable for small allocations)
+        long memoryBefore = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
         // Train and predict (if not already done)
         train();
-        predict(testData);
+        // predict(testData);
 
-        // Measure memory AFTER
-        long memoryAfter = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
-        long memoryUsed = memoryAfter - memoryBefore;
+        long memoryAfter = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        long memoryUsed = (memoryAfter - memoryBefore) / 1024;
 
         // Evaluation
         Evaluation eval = new Evaluation(testData);

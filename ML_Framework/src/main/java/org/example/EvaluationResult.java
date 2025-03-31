@@ -17,14 +17,6 @@ public class EvaluationResult {
         return accuracy;
     }
 
-    public double getTrainingTimeMs() {
-        return trainingTimeMs;
-    }
-
-    public double getPredictionTimeMs() {
-        return predictionTimeMs;
-    }
-
     public double getMemoryUsageKb() {
         return memoryUsageKb;
     }

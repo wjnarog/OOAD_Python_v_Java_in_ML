@@ -9,7 +9,6 @@ import java.util.Random;
 
 public class Main {
     private static final double TRAIN_TEST_SPLIT_RATIO = 0.7;
-    private static final int WARMUP_RUNS = 5;
     private static final int EVALUATION_RUNS = 100;
     private static final Random RANDOM = new Random(42);
 
@@ -50,23 +49,20 @@ public class Main {
         PerformanceStats stats = new PerformanceStats();
         String classifierName = classifier.getClass().getSimpleName();
 
-        // Warmup
-        for (int i = 0; i < WARMUP_RUNS; i++) {
-            classifier.train();
-            classifier.predict(testData);
-        }
-
         // Main runs
         for (int i = 0; i < runs; i++) {
+            BaseClassifier freshClassifier = classifier.getClass()
+                    .getConstructor(Instances.class)
+                    .newInstance(classifier.trainingData);
             long trainStart = System.nanoTime();
-            classifier.train();
+            freshClassifier.train();
             long trainTime = System.nanoTime() - trainStart;
 
             long predictStart = System.nanoTime();
-            double[] predictions = classifier.predict(testData);
+            double[] predictions = freshClassifier.predict(testData);
             long predictTime = System.nanoTime() - predictStart;
 
-            EvaluationResult result = classifier.evaluate(testData, predictions, trainTime, predictTime);
+            EvaluationResult result = freshClassifier.evaluate(testData, predictions, trainTime, predictTime);
             stats.addRun(result.getAccuracy(), trainTime, predictTime, result.getMemoryUsageKb());
         }
 
