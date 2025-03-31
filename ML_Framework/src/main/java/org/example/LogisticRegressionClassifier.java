@@ -17,7 +17,11 @@ public class LogisticRegressionClassifier extends BaseClassifier {
     public LogisticRegressionClassifier(Instances trainingData) {
         super(trainingData);
         // Composition: Initialize the Logistic model
-        model = new Logistic(); // Use Weka's Logistic Regression
+        // model = new Logistic(); // Use Weka's Logistic Regression
+        Logistic logistic = new Logistic();
+        logistic.setRidge(0.01);
+        logistic.setMaxIts(100);
+        model = logistic;
     }
 
     @Override

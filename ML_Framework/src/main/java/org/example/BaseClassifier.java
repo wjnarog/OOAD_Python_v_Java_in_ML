@@ -4,7 +4,10 @@ import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /*
  * - Encapsulation: Encapsulates common functionality like evaluation and cross-validation.
@@ -30,25 +33,37 @@ public abstract class BaseClassifier {
      * - DRY: Reusable method for evaluating accuracy.
      * - Encapsulation: Evaluation logic is encapsulated in this method.
      */
-    public void evaluate(Instances testData, double[] predictions) throws Exception {
+    public EvaluationResult evaluate(Instances testData, double[] predictions,
+                                    long trainingTimeNanos, long predictionTimeNanos) throws Exception {
+        // Force GC and wait to reduce noise
+        System.gc();
+        Thread.sleep(100);
+
+        // Measure memory BEFORE training
+        long memoryBefore = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
+
+        // Train and predict (if not already done)
+        train();
+        predict(testData);
+
+        // Measure memory AFTER
+        long memoryAfter = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
+        long memoryUsed = memoryAfter - memoryBefore;
+
+        // Evaluation
         Evaluation eval = new Evaluation(testData);
-        for (int i = 0; i < testData.numInstances(); i++) {
-            eval.evaluateModelOnce(predictions[i], testData.instance(i));
-        }
-        System.out.println("Accuracy: " + eval.pctCorrect());
-    }
+        eval.evaluateModel(getModel(), testData);
 
-    /*
-     * - DRY: Reusable method for cross-validation.
-     * - Encapsulation: Cross-validation logic is encapsulated in this method.
-     */
-
-    public void crossValidate(int folds) throws Exception {
-        Evaluation eval = new Evaluation(trainingData);
-        eval.crossValidateModel(getModel(), trainingData, folds, new Random(42));
-//        System.out.println("Cross-Validation Accuracy: " + eval.pctCorrect() + "%");
+        return new EvaluationResult(
+                eval.pctCorrect(),
+                trainingTimeNanos / 1_000_000.0, // Convert to ms
+                predictionTimeNanos / 1_000_000.0, // Convert to ms
+                memoryUsed / 1024.0 // Convert to KB
+        );
     }
 
     // Abstraction: Subclasses must provide the model
     protected abstract Classifier getModel();
+
+
 }

@@ -2,16 +2,17 @@ package org.example;
 
 import weka.core.Instances;
 import weka.core.converters.CSVLoader;
+import weka.classifiers.Evaluation;
 
 import java.io.File;
-
-/*
- * - Polymorphism: Treats all classifiers as BaseClassifier objects.
- * - Maintainability: Easy to add or remove classifiers.
- * - DRY/KISS: Reuses common functionality from BaseClassifier.
- */
+import java.util.Random;
 
 public class Main {
+    private static final double TRAIN_TEST_SPLIT_RATIO = 0.7;
+    private static final int WARMUP_RUNS = 5;
+    private static final int EVALUATION_RUNS = 100;
+    private static final Random RANDOM = new Random(42);
+
     public static void main(String[] args) {
         try {
             // Load the dataset
@@ -20,46 +21,62 @@ public class Main {
             Instances dataset = loader.getDataSet();
             dataset.setClassIndex(dataset.numAttributes() - 1);
 
-            // Split the dataset into training and testing sets (70% training, 30% testing)
-            int trainSize = (int) Math.round(dataset.numInstances() * 0.7);
+            // Shuffle and split data
+            dataset.randomize(RANDOM);
+            int trainSize = (int) Math.round(dataset.numInstances() * TRAIN_TEST_SPLIT_RATIO);
             int testSize = dataset.numInstances() - trainSize;
             Instances trainingData = new Instances(dataset, 0, trainSize);
             Instances testData = new Instances(dataset, trainSize, testSize);
 
-            // Create and train SVM
+            // Evaluate each classifier with 100 runs
             System.out.println("\nSVM:");
-            SVMClassifier svmClassifier = new SVMClassifier(trainingData);
-            svmClassifier.train();
-            double[] predictions = svmClassifier.predict(testData);
-            svmClassifier.evaluate(testData, predictions);
-            svmClassifier.crossValidate(10);
+            evaluateWithRuns(new SVMClassifier(trainingData), testData, EVALUATION_RUNS);
 
-            // Create and train Logistic Regression
             System.out.println("\nLogistic Regression:");
-            LogisticRegressionClassifier logisticRegression = new LogisticRegressionClassifier(trainingData);
-            logisticRegression.train();
-            predictions = logisticRegression.predict(testData);
-            logisticRegression.evaluate(testData, predictions);
-            logisticRegression.crossValidate(10);
+            evaluateWithRuns(new LogisticRegressionClassifier(trainingData), testData, EVALUATION_RUNS);
 
-            // Create and train Decision Tree
             System.out.println("\nDecision Tree:");
-            DecisionTreeClassifier decisionTree = new DecisionTreeClassifier(trainingData);
-            decisionTree.train();
-            predictions = decisionTree.predict(testData);
-            decisionTree.evaluate(testData, predictions);
-            decisionTree.crossValidate(10);
+            evaluateWithRuns(new DecisionTreeClassifier(trainingData), testData, EVALUATION_RUNS);
 
-            // Create and train k-NN
             System.out.println("\nk-NN:");
-            KNNClassifier knnClassifier = new KNNClassifier(trainingData);
-            knnClassifier.train();
-            predictions = knnClassifier.predict(testData);
-            knnClassifier.evaluate(testData, predictions);
-            knnClassifier.crossValidate(10);
+            evaluateWithRuns(new KNNClassifier(trainingData), testData, EVALUATION_RUNS);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static void evaluateWithRuns(BaseClassifier classifier, Instances testData, int runs) throws Exception {
+        PerformanceStats stats = new PerformanceStats();
+        String classifierName = classifier.getClass().getSimpleName();
+
+        // Warmup
+        for (int i = 0; i < WARMUP_RUNS; i++) {
+            classifier.train();
+            classifier.predict(testData);
+        }
+
+        // Main runs
+        for (int i = 0; i < runs; i++) {
+            long trainStart = System.nanoTime();
+            classifier.train();
+            long trainTime = System.nanoTime() - trainStart;
+
+            long predictStart = System.nanoTime();
+            double[] predictions = classifier.predict(testData);
+            long predictTime = System.nanoTime() - predictStart;
+
+            EvaluationResult result = classifier.evaluate(testData, predictions, trainTime, predictTime);
+            stats.addRun(result.getAccuracy(), trainTime, predictTime, result.getMemoryUsageKb());
+        }
+
+        // Print average metrics after all runs
+        System.out.println("\n" + classifierName);
+        System.out.printf("Average Training time: %.3f ms\n", stats.getAverageTrainingTimeMillis());
+        System.out.printf("Average Memory usage during training: %.2f KB\n", stats.getAverageMemoryUsageKB());
+        System.out.printf("Average Prediction time: %.3f ms\n", stats.getAveragePredictionTimeMillis());
+        System.out.printf("The average accuracy of the %s is: %.2f%%\n",
+                classifierName, stats.getAverageAccuracy());
+        System.out.println("(Averaged over " + runs + " runs)");
     }
 }
