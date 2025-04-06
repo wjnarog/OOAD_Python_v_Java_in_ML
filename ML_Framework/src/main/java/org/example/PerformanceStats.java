@@ -1,17 +1,22 @@
 package org.example;
 
 public class PerformanceStats {
-    private double totalAccuracy = 0;
-    private long totalTrainingTime = 0;
-    private long totalPredictionTime = 0;
-    private double totalMemoryUsage = 0;
-    private int runs = 0;
+    private double totalAccuracy;
+    private long totalTrainTime;
+    private long totalPredictTime;
+    private int runs;
 
-    public void addRun(double accuracy, long trainingTime, long predictionTime, double memoryUsage) {
+    public PerformanceStats() {
+        this.totalAccuracy = 0;
+        this.totalTrainTime = 0;
+        this.totalPredictTime = 0;
+        this.runs = 0;
+    }
+
+    public void addRun(double accuracy, long trainTime, long predictTime) {
         this.totalAccuracy += accuracy;
-        this.totalTrainingTime += trainingTime;
-        this.totalPredictionTime += predictionTime;
-        this.totalMemoryUsage += memoryUsage;
+        this.totalTrainTime += trainTime;
+        this.totalPredictTime += predictTime;
         this.runs++;
     }
 
@@ -19,19 +24,15 @@ public class PerformanceStats {
         return totalAccuracy / runs;
     }
 
-    public double getAverageTrainingTimeMillis() {
-        return totalTrainingTime / (runs * 1_000_000.0);
+    public double getAverageTrainTime() {
+        return (double) totalTrainTime / runs;
     }
 
-    public double getAveragePredictionTimeMillis() {
-        return totalPredictionTime / (runs * 1_000_000.0);
+    public double getAveragePredictTime() {
+        return (double) totalPredictTime / runs;
     }
 
-    public double getAverageMemoryUsageKB() {
-        return totalMemoryUsage / runs;
-    }
-
-    public int getRunCount() {
+    public int getRuns() {
         return runs;
     }
 }
