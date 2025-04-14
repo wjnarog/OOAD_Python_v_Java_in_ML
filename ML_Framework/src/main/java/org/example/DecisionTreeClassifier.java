@@ -12,9 +12,13 @@ public class DecisionTreeClassifier extends BaseClassifier {
 
     @Override
     public void train() throws Exception {
+        Runtime runtime = Runtime.getRuntime();
+        long startMem = runtime.totalMemory() - runtime.freeMemory();
         long startTime = System.currentTimeMillis();
         this.decisionTree.buildClassifier(this.trainData);
         this.trainingTime = System.currentTimeMillis() - startTime;
+        long endMem = runtime.totalMemory() - runtime.freeMemory();
+        this.trainingMemory = (endMem - startMem) / (1024.0 * 1024.0); // Convert to MB
     }
 
     @Override

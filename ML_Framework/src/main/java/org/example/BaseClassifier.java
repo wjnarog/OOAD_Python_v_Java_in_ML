@@ -12,6 +12,8 @@ public abstract class BaseClassifier {
     protected Instances testData;
     protected long trainingTime;
     protected long predictionTime;
+    protected double trainingMemory;
+    protected double predictionMemory;
 
     public BaseClassifier(String dataPath) throws Exception {
         // Load CSV file directly
@@ -36,11 +38,23 @@ public abstract class BaseClassifier {
     public abstract void train() throws Exception;
     public abstract void predict() throws Exception;
 
+    public double getTrainingMemory() {
+        return trainingMemory;
+    }
+
+    public double getPredictionMemory() {
+        return predictionMemory;
+    }
+
     public Evaluation evaluate() throws Exception {
-        Evaluation eval = new Evaluation(this.trainData);
+        Runtime runtime = Runtime.getRuntime();
+        long startMem = runtime.totalMemory() - runtime.freeMemory();
         long startTime = System.currentTimeMillis();
+        Evaluation eval = new Evaluation(this.trainData);
         eval.evaluateModel(getClassifier(), this.testData);
         this.predictionTime = System.currentTimeMillis() - startTime;
+        long endMem = runtime.totalMemory() - runtime.freeMemory();
+        this.predictionMemory = (endMem - startMem) / (1024.0 * 1024.0); // Convert to MB
         return eval;
     }
 

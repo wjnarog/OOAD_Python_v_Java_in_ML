@@ -50,30 +50,27 @@ public class Main {
 
         for (int i = 0; i < numRuns; i++) {
             try {
-
-                // Create fresh classifier instance (forces new data split)
                 BaseClassifier classifier = classifierSupplier.get();
-
-                // Train and evaluate
                 classifier.train();
                 Evaluation eval = classifier.evaluate();
 
-                // Collect metrics
                 stats.addRun(eval.pctCorrect(),
                         classifier.getTrainingTime(),
-                        classifier.getPredictionTime());
+                        classifier.getPredictionTime(),
+                        classifier.getTrainingMemory(),
+                        classifier.getPredictionMemory());
 
             } catch (Exception e) {
                 System.err.printf("Error in run %d: %s%n", i, e.getMessage());
-                e.printStackTrace();
-                continue; // Skip this run and continue with the next
+                continue;
             }
         }
 
-        // Print final averages
         System.out.println("\nFinal Statistics:");
         System.out.printf("Average Training time: %.3f ms%n", stats.getAverageTrainTime());
         System.out.printf("Average Prediction time: %.3f ms%n", stats.getAveragePredictTime());
+        System.out.printf("Average Training memory: %.3f MB%n", stats.getAverageTrainMemory());
+        System.out.printf("Average Prediction memory: %.3f MB%n", stats.getAveragePredictMemory());
         System.out.printf("Average Accuracy: %.2f%%%n", stats.getAverageAccuracy());
         System.out.printf("(averaged over %d runs.)%n%n", stats.getRuns());
     }
