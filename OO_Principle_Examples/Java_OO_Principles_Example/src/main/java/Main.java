@@ -1,19 +1,32 @@
 // Encapsulation
-class Person {
-    private String name;
+class EncapsulatedAnimal {
+    private String species;
+    private int age;
 
-    public Person(String name) {
-        this.name = name;
+    public EncapsulatedAnimal(String species, int age) {
+        this.species = species;
+        this.age = age;
     }
 
-    public String getName() {
-        return name;
+    public String getSpecies() {
+        return species;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setSpecies(String species) {
+        this.species = species;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        if (age >= 0) {
+            this.age = age;
+        }
     }
 }
+
 
 // Inheritance
 class AnimalBase {
@@ -24,7 +37,7 @@ class AnimalBase {
 
 class InheritedDog extends AnimalBase {
     String speak() {
-        return "Bark (from inheritance)";
+        return "Bark";
     }
 }
 
@@ -35,13 +48,13 @@ interface AnimalSound {
 
 class Cat implements AnimalSound {
     public void sound() {
-        System.out.println("Meow (from polymorphism)");
+        System.out.println("Meow");
     }
 }
 
 class PolymorphicDog implements AnimalSound {
     public void sound() {
-        System.out.println("Bark (from polymorphism)");
+        System.out.println("Bark");
     }
 }
 
@@ -52,7 +65,7 @@ abstract class Animal {
 
 class Dog extends Animal {
     void makeSound() {
-        System.out.println("Woof (from abstraction)");
+        System.out.println("Woof");
     }
 }
 
@@ -60,11 +73,16 @@ public class Main {
     public static void main(String[] args) {
 
         // Encapsulation
-        System.out.println("Encapsulation");
-        Person person = new Person("Alice");
-        System.out.println("Name: " + person.getName());
-        person.setName("Bob");
-        System.out.println("Updated Name: " + person.getName());
+        System.out.println("\n== Encapsulation ==");
+        EncapsulatedAnimal animal = new EncapsulatedAnimal("Dog", 3);
+        System.out.println("Species: " + animal.getSpecies());
+        System.out.println("Age: " + animal.getAge());
+
+        animal.setSpecies("Cat");
+        animal.setAge(5);
+
+        System.out.println("Updated Species: " + animal.getSpecies());
+        System.out.println("Updated Age: " + animal.getAge());
 
         // Inheritance
         System.out.println("\nInheritance");
