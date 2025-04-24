@@ -35,4 +35,5 @@ pip install -r requirements.txt
 jupyter notebook
 ```
 ## OOP Examples
-cd OO_Principles_Examples
+- cd OO_Principles_Examples
+- follow instructions from above to run each language respectively
