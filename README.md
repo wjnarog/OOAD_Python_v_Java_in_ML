@@ -1,4 +1,4 @@
-# ML Classifiers Benchmark (Java vs Python)
+# Machine Learning Classifiers Benchmark (Java vs Python)
 
 ## Overview
 This project compares SVM, Logistic Regression, and Decision Tree classifiers using:
@@ -22,12 +22,17 @@ git clone https://github.com/wjnarog/OOAD_Python_v_Java_in_ML/tree/main
 cd ML-Classifier-Comparison
 
 # Java (Weka) implementation
+cd classifier-benchmark-java
 gradlew.bat run  # Windows
 ./gradlew run    # Mac/Linux
 
 # Python (scikit-learn) implementation
+cd classifier_benchmark_python
 python -m venv venv
 venv\Scripts\activate  # Windows
 source venv/bin/activate  # Mac/Linux
 pip install -r requirements.txt
 jupyter notebook
+```
+## OOP Examples
+cd OO_Principles_Examples
