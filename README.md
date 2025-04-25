@@ -28,6 +28,8 @@ gradlew.bat run  # Windows
 
 # Python (scikit-learn) implementation
 cd classifier_benchmark_python
+run all the cells in the jupyter notebook
+else try the below
 python -m venv venv
 venv\Scripts\activate  # Windows
 source venv/bin/activate  # Mac/Linux
